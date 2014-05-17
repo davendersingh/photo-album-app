@@ -1,0 +1,89 @@
+<%= form_for(current_user, :url=>photos_upload_image_path, :html => { class:'text-center',:multipart => true,:id=>"fileupload"}) do |f| %>
+  <h1>Select or drag and drop files here</h1> <br /><br />
+  <div id="browse_file">
+    <%= f.fields_for :photos do |photo| %>
+    <% if photo.object.new_record? %>
+
+      <%= photo.file_field :image, title:"Select a file to add" %> <br />
+    <% end %>
+  <% end %>
+  </div>
+  <!-- The loading indicator is shown during image processing -->
+  <div class="fileupload-loading"></div>
+  <div id="uploaded">
+    <table class="uploaded_files">
+    <table>
+  </div>
+  <br />
+  <!-- The table listing the files available for upload/download -->
+  <table class="table table-striped"><tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody>
+  </table>                
+  <%= f.submit "Upload", :class=>"btn btn-success hide" %>
+<%end%>
+<!-- The template to display files available for upload -->
+<script id="template-upload" type="text/x-tmpl">
+  {% for (var i=0, file; file=o.files[i]; i++) { %}
+  <tr class="template-upload fade">
+    <td class="name"><span>{%=file.name%}</span></td>
+    <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+    {% if (file.error) { %}
+    <td class="error"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
+    {% } else if (o.files.valid && !i) { %}
+    {% } else { %}
+    {% } %}
+    <td>
+      <div class="progress progress-success progress-striped active"><div class="bar" style="width:0%;"></div></div>
+    </td>
+  </tr>
+  {% } %}
+
+</script>
+
+<!-- The template to display files available for download -->
+<script id="template-download" type="text/x-tmpl">
+  {% for (var i=0, file; file=o.files[i]; i++) { %}
+    <tr class="template-download fade">
+      {% if (file.error) { %}
+        <td class="name"><span>{%=file.name%}</span></td>
+        <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+        <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
+        {% } else { %}
+        <td class="name">
+          <a href="{%=file.url%}" title="{%=file.name%}" rel="{%=file.thumbnail_url&&'gallery'%}" download="{%=file.name%}" class='downloadable'>{%=file.name%}</a>
+        </td>
+        <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+        {% } %}
+      <td></td>
+      <td class="delete">
+        <button class="btn btn-danger" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">
+          <span>{%=locale.fileupload.destroy%}</span>
+        </button>
+      </td>
+    </tr>
+    {% } %}
+</script>
+
+<script type="text/javascript" charset="utf-8">
+  
+$(function() {
+  $("#fileupload").fileupload({
+    autoUpload: true,
+    acceptFileTypes: /(\.|\/)(jpg?|png)$/i,
+    url: '/photos/update'
+  });
+  return $.getJSON($("#fileupload").prop("action"), function(files) {
+    var fu, template;
+    fu = $("#fileupload").data("blueimpFileupload");
+    template = void 0;
+    fu._adjustMaxNumberOfFiles(-files.length);
+    template = fu._renderDownload(files).appendTo($("#fileupload .files"));
+    fu._reflow = fu._transition && template.length && template[0].offsetWidth;
+    template.addClass("in");
+    return $("#loading").remove();
+  });
+});
+
+$(document).ready(function(){
+  $('input[type=file]').bootstrapFileInput();
+});
+</script>

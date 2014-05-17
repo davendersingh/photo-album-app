@@ -1,0 +1,15 @@
+<%= form_for(resource, :as => resource_name, :url => registration_path(resource_name), :html => {class: "form-signin", role: "form"}) do |f| %>
+  <%= devise_error_messages! %>
+  <h2 class="form-signin-heading">Please Sign Up</h2>
+  <div>
+    <%= f.email_field :email, :autofocus => true , class: 'form-control', placeholder: 'Email address',required: true %>
+    <%= f.password_field :password , class: 'form-control', placeholder: 'Password', required: true %>
+    <%= f.password_field :password_confirmation , class: 'form-control', placeholder: 'Password confirmation', required: true %>
+  </div> <br />
+  <div>
+  	<%= f.submit "Sign up",class:"btn btn-success" %>
+  	<%= link_to "Login", new_user_session_path , class: 'btn btn-success'%>
+  </div>
+<% end %>
+
+<%#= render "devise/shared/links" %>
